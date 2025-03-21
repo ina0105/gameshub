@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Custom Wordle - GORDA</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+      background-color: #f8f8ff;
+    }
+    h1 {
+      color: #333;
+    }
+    #wordle-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 60px);
+      gap: 5px;
+      margin-top: 20px;
+    }
+    .cell {
+      width: 60px;
+      height: 60px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: #fff;
+      border: 2px solid #ccc;
+      font-size: 24px;
+      text-transform: uppercase;
+      font-weight: bold;
+    }
+    .correct {
+      background-color: #6aaa64;
+      color: white;
+    }
+    .present {
+      background-color: #c9b458;
+      color: white;
+    }
+    .incorrect {
+      background-color: #787c7e;
+      color: white;
+    }
+    #message {
+      margin-top: 10px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>Wordle: Guess the Word!</h1>
+  <div id="wordle-grid"></div>
+  <input type="text" id="guessInput" maxlength="5" />
+  <button onclick="submitGuess()">Submit</button>
+  <div id="message"></div>
+
+  <script>
+    const targetWord = "GORDA";
+    let attempts = 0;
+    const maxAttempts = 6;
+    const wordleGrid = document.getElementById("wordle-grid");
+    const message = document.getElementById("message");
+    const guessInput = document.getElementById("guessInput");
+
+    function createGrid() {
+      for (let i = 0; i < maxAttempts * 5; i++) {
+        const div = document.createElement("div");
+        div.classList.add("cell");
+        wordleGrid.appendChild(div);
+      }
+    }
+
+    function submitGuess() {
+      const guess = guessInput.value.toUpperCase();
+      if (guess.length !== 5) {
+        message.textContent = "Enter a 5-letter word!";
+        return;
+      }
+
+      const rowOffset = attempts * 5;
+      for (let i = 0; i < 5; i++) {
+        const cell = wordleGrid.children[rowOffset + i];
+        cell.textContent = guess[i];
+        if (guess[i] === targetWord[i]) {
+          cell.classList.add("correct");
+        } else if (targetWord.includes(guess[i])) {
+          cell.classList.add("present");
+        } else {
+          cell.classList.add("incorrect");
+        }
+      }
+      
+      attempts++;
+      guessInput.value = "";
+
+      if (guess === targetWord) {
+        message.textContent = "🎉 Congratulations! You guessed it!";
+        guessInput.disabled = true;
+        showCelebration();
+      } else if (attempts >= maxAttempts) {
+        message.textContent = `Game over! The word was ${targetWord}.`;
+        guessInput.disabled = true;
+      }
+    }
+
+    function showCelebration() {
+      document.body.innerHTML += '<div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border-radius: 10px; box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2); text-align: center; font-size: 24px; font-weight: bold;">🎉 Congratulations! You guessed the word GORDA! 🎉</div>';
+    }
+
+    createGrid();
+  </script>
+</body>
+</html>

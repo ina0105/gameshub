@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Custom Strands Game</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+      background-color: #f8f8ff;
+    }
+    h1 {
+      color: #333;
+    }
+    #grid {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(40px, 1fr));
+      gap: 5px;
+      margin-top: 20px;
+    }
+    .cell {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: #fff;
+      border: 2px solid #ccc;
+      font-size: 20px;
+      cursor: pointer;
+      user-select: none;
+      border-radius: 50%;
+      transition: background-color 0.3s;
+    }
+    .selected {
+      background-color: #add8e6;
+    }
+    .correct {
+      background-color: #ffde59;
+    }
+    #wordDisplay {
+      margin-top: 20px;
+      font-weight: bold;
+    }
+    #foundWords {
+      margin-top: 20px;
+    }
+    #message {
+      margin-top: 10px;
+      color: green;
+      font-style: italic;
+    }
+  </style>
+</head>
+<body>
+  <h1>Theme: Memories 💡</h1>
+  <div id="grid"></div>
+  <div id="wordDisplay">Selected Word: <span id="currentWord"></span></div>
+  <button onclick="submitWord()">Submit</button>
+  <div id="message"></div>
+  <div id="foundWords">Found Words: <ul id="foundList"></ul></div>
+
+  <script>
+    // New letter grid to match the uploaded image
+    const gridLetters = [
+      'O','Y','Z','Z','D','S',' ',
+      'N','R','A','Z','I','E',' ',
+      'A','A','D','A','R','O',' ',
+      'R','A','L','A','L','R',' ',
+      'C','N','E','F','A','F',' ',
+      'O','S','B','Y','E','L',' ',
+      'R','N','O','B','W','O',' ',
+      'E','G','A','R','T','S',' '
+    ];
+
+    const validWords = [
+      'TRUFFLE MAYO',
+      'STRANGERS',
+      'DIZZY',
+      'SKATING',
+      'WOLF',
+      'ZORRO',
+      'FLAMENCO',
+      'CHEF',
+      'ONE-YEAR'
+    ];
+
+    const foundWords = new Set();
+
+    const grid = document.getElementById("grid");
+    const currentWordDisplay = document.getElementById("currentWord");
+    const foundList = document.getElementById("foundList");
+    const message = document.getElementById("message");
+
+    let selectedCells = [];
+    let currentWord = "";
+
+    // Create grid
+    gridLetters.forEach((letter, index) => {
+      if (letter !== ' ') {
+        const div = document.createElement("div");
+        div.classList.add("cell");
+        div.textContent = letter;
+        div.dataset.index = index;
+        div.addEventListener("click", () => selectCell(div, letter));
+        grid.appendChild(div);
+      } else {
+        const emptyDiv = document.createElement("div");
+        emptyDiv.style.width = "60px";
+        grid.appendChild(emptyDiv);
+      }
+    });
+
+    function selectCell(cell, letter) {
+      if (cell.classList.contains("selected")) return;
+      selectedCells.push(cell);
+      cell.classList.add("selected");
+      currentWord += letter;
+      currentWordDisplay.textContent = currentWord;
+      message.textContent = "";
+    }
+
+    function submitWord() {
+      const formattedWord = currentWord.toUpperCase().replace(/[^A-Z]/g, "");
+      const validUpper = validWords.map(w => w.replace(/[^A-Z]/gi, "").toUpperCase());
+
+      if (foundWords.has(formattedWord)) {
+        message.textContent = `You already guessed "${currentWord}"!`;
+      } else if (validUpper.includes(formattedWord)) {
+        foundWords.add(formattedWord);
+        const li = document.createElement("li");
+        li.textContent = currentWord;
+        foundList.appendChild(li);
+        message.textContent = `Nice! You found "${currentWord}"!`;
+        selectedCells.forEach(cell => cell.classList.add("correct"));
+      } else {
+        message.textContent = `"${currentWord}" is not a valid word.`;
+      }
+
+      selectedCells.forEach(cell => cell.classList.remove("selected"));
+      selectedCells = [];
+      currentWord = "";
+      currentWordDisplay.textContent = "";
+      
+      checkWin();
+    }
+    
+    function checkWin() {
+      if (foundWords.size === validWords.length) {
+        document.body.innerHTML += '<div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border-radius: 10px; box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2); text-align: center; font-size: 24px; font-weight: bold;">🎉 Congratulations! You found all the words! 🎉</div>';
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Custom Connections Game</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+      background-color: #f8f8ff;
+    }
+    h1 {
+      color: #333;
+    }
+    #grid {
+      display: grid;
+      grid-template-columns: repeat(4, 150px);
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .cell {
+      width: 150px;
+      height: 60px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: #fff;
+      border: 2px solid #ccc;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+      user-select: none;
+    }
+    .selected {
+      background-color: #add8e6;
+    }
+    .correct {
+      background-color: #6aaa64;
+      color: white;
+    }
+    #message {
+      margin-top: 10px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>Connections: Find the Groups!</h1>
+  <div id="grid"></div>
+  <button onclick="submitSelection()">Submit Selection</button>
+  <div id="message"></div>
+
+  <script>
+    const categories = {
+      "Internet Sensations": ["broccoli", "kevin", "the bros", "bobby"],
+      "Food We Made for Each Other": ["torrijas", "tortilla", "gris", "paprika"],
+      "Food We Say We Like but Don't": ["polenta", "bacalao", "gazpacho", "rakija"],
+      "Offensive but Loving Nicknames": ["chubby", "dumbdumb", "autistic", "slow"]
+    };
+
+    let words = Object.values(categories).flat();
+    words = words.sort(() => Math.random() - 0.5);
+
+    const grid = document.getElementById("grid");
+    const message = document.getElementById("message");
+    let selectedCells = [];
+
+    words.forEach(word => {
+      const div = document.createElement("div");
+      div.classList.add("cell");
+      div.textContent = word;
+      div.addEventListener("click", () => toggleSelect(div));
+      grid.appendChild(div);
+    });
+
+    function toggleSelect(cell) {
+      if (cell.classList.contains("selected")) {
+        cell.classList.remove("selected");
+        selectedCells = selectedCells.filter(c => c !== cell);
+      } else if (selectedCells.length < 4) {
+        cell.classList.add("selected");
+        selectedCells.push(cell);
+      }
+    }
+
+    function submitSelection() {
+      if (selectedCells.length !== 4) {
+        message.textContent = "Select exactly 4 words!";
+        return;
+      }
+      
+      let selectedWords = selectedCells.map(cell => cell.textContent);
+      let foundCategory = Object.keys(categories).find(category =>
+        categories[category].every(word => selectedWords.includes(word))
+      );
+      
+      if (foundCategory) {
+        message.textContent = `✔ Correct! Category: ${foundCategory}`;
+        selectedCells.forEach(cell => {
+          cell.classList.add("correct");
+          cell.classList.remove("selected");
+        });
+        selectedCells = [];
+      } else {
+        message.textContent = "❌ Incorrect. Try again!";
+        selectedCells.forEach(cell => cell.classList.remove("selected"));
+        selectedCells = [];
+      }
+    }
+  function checkWin() {
+      const allCells = document.querySelectorAll('.cell');
+      const allCorrect = [...allCells].every(cell => cell.classList.contains('correct'));
+      
+      if (allCorrect) {
+        document.body.innerHTML += '<div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border-radius: 10px; box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2); text-align: center; font-size: 24px; font-weight: bold;">🎉 Congratulations! You found all the connections! 🎉</div>';
+      }
+    }
+    
+    function submitSelection() {
+      if (selectedCells.length !== 4) {
+        message.textContent = "Select exactly 4 words!";
+        return;
+      }
+      
+      let selectedWords = selectedCells.map(cell => cell.textContent);
+      let foundCategory = Object.keys(categories).find(category =>
+        categories[category].every(word => selectedWords.includes(word))
+      );
+      
+      if (foundCategory) {
+        message.textContent = `✔ Correct! Category: ${foundCategory}`;
+        selectedCells.forEach(cell => {
+          cell.classList.add("correct");
+          cell.classList.remove("selected");
+        });
+        selectedCells = [];
+        checkWin();
+      } else {
+        message.textContent = "❌ Incorrect. Try again!";
+        selectedCells.forEach(cell => cell.classList.remove("selected"));
+        selectedCells = [];
+      }
+    }
+  </script>
+</body>
+</html>
