@@ -86,7 +86,7 @@
 </head>
 <body>
   <div>
-    <h1>🎉 Perfe's Crossword 🎉</h1>
+    <h1>🎉 NYT-Style Crossword 🎉</h1>
     <div id="puzzle"></div>
   </div>
   <div class="clues">
@@ -209,6 +209,7 @@
             const input = document.createElement('input');
             input.maxLength = 1;
             input.addEventListener('input', checkCompletion);
+            input.addEventListener('keydown', (e) => handleArrowNavigation(e, r, c));
             cellDiv.appendChild(input);
             const number = numbering[`${r},${c}`];
             if (number) {
@@ -235,33 +236,65 @@
     }
 
     function checkCompletion() {
-      const inputs = document.querySelectorAll('td input');
-      let filledCorrectly = true;
+  const inputs = document.querySelectorAll('td input');
+  let filledCorrectly = true;
+  let flatIndex = 0;
+
+  for (let r = 0; r < crosswordData.grid.length; r++) {
+    for (let c = 0; c < crosswordData.grid[r].length; c++) {
+      const correctChar = crosswordData.grid[r][c];
+      if (correctChar !== null) {
+        const input = inputs[flatIndex];
+        if (!input || input.value.toUpperCase() !== correctChar.toUpperCase()) {
+          filledCorrectly = false;
+        }
+        flatIndex++;
+      }
+    }
+  }
+
+  if (filledCorrectly) {
+    document.getElementById('celebration').style.display = 'block';
+  }
+}
+
+    function handleArrowNavigation(e, row, col) {
+      const inputsMap = [];
+      const rows = crosswordData.grid.length;
+      const cols = crosswordData.grid[0].length;
+      const allInputs = document.querySelectorAll('td input');
       let flatIndex = 0;
 
-      outerLoop:
-      for (let r = 0; r < crosswordData.grid.length; r++) {
-        for (let c = 0; c < crosswordData.grid[r].length; c++) {
-          const correctChar = crosswordData.grid[r][c];
-          if (correctChar !== null) {
-            const input = inputs[flatIndex];
-            if (!input || input.value.toUpperCase() !== correctChar.toUpperCase()) {
-              filledCorrectly = false;
-              break outerLoop;
-            }
-            flatIndex++;
+      for (let r = 0; r < rows; r++) {
+        inputsMap[r] = [];
+        for (let c = 0; c < cols; c++) {
+          if (crosswordData.grid[r][c] !== null) {
+            inputsMap[r][c] = allInputs[flatIndex++];
           } else {
-            // black square
+            inputsMap[r][c] = null;
           }
         }
       }
 
-      if (filledCorrectly) {
-        document.getElementById('celebration').style.display = 'block';
+      const moveFocus = (newR, newC) => {
+        if (
+          newR >= 0 && newR < rows &&
+          newC >= 0 && newC < cols &&
+          inputsMap[newR][newC]
+        ) {
+          inputsMap[newR][newC].focus();
+        }
+      };
+
+      switch (e.key) {
+        case 'ArrowUp': moveFocus(row - 1, col); break;
+        case 'ArrowDown': moveFocus(row + 1, col); break;
+        case 'ArrowLeft': moveFocus(row, col - 1); break;
+        case 'ArrowRight': moveFocus(row, col + 1); break;
       }
     }
 
-    document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", () => {
       const puzzleContainer = document.getElementById("puzzle");
       puzzleContainer.appendChild(renderGrid(crosswordData.grid));
       renderClues(crosswordData.clues.across, 'across-clues');
