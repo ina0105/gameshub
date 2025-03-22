@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Custom NYT-Style Crossword</title>
+  <title>Your very own Crossword</title>
   <style>
     body {
       font-family: Arial, sans-serif;
       padding: 20px;
-      background: #f0f8ff;
+      background: linear-gradient(135deg, #f0f8ff, #ffe4e1);
       display: flex;
       flex-direction: row;
       gap: 40px;
@@ -16,7 +16,7 @@
     table {
       border-collapse: collapse;
       margin: 0;
-      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+      box-shadow: 0 0 15px rgba(0,0,0,0.3);
     }
     td {
       width: 30px;
@@ -29,9 +29,6 @@
       text-transform: uppercase;
       position: relative;
     }
-    td.black {
-      background: #222;
-    }
     td input {
       width: 100%;
       height: 100%;
@@ -39,22 +36,24 @@
       text-align: center;
       font-size: 16px;
       background: transparent;
-      color: #333;
+      color: #2b2b2b;
     }
-    td div {
-      width: 100%;
-      height: 100%;
-      position: relative;
+    td.black {
+      background: #111;
     }
     td div div {
       position: absolute;
       top: 0;
       left: 2px;
       font-size: 8px;
-      color: darkblue;
+      color: #0077cc;
     }
     .clues {
-      max-width: 400px;
+      max-width: 420px;
+      background: #fff8dc;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
     .clues h3 {
       margin: 10px 0 5px;
@@ -69,11 +68,25 @@
       margin-bottom: 6px;
       font-size: 14px;
     }
+    #celebration {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+      padding: 10px 20px;
+      font-size: 18px;
+      border-radius: 8px;
+      display: none;
+      z-index: 1000;
+    }
   </style>
 </head>
 <body>
   <div>
-    <h1>NYT-Style Crossword</h1>
+    <h1>🎉 NYT-Style Crossword 🎉</h1>
     <div id="puzzle"></div>
   </div>
   <div class="clues">
@@ -82,6 +95,7 @@
     <h3>Down</h3>
     <ul id="down-clues"></ul>
   </div>
+  <div id="celebration">🎉 Congratulations! You completed the puzzle! 🎉</div>
   <script>
     const crosswordData = {
       grid: [
@@ -194,6 +208,7 @@
             const cellDiv = document.createElement('div');
             const input = document.createElement('input');
             input.maxLength = 1;
+            input.addEventListener('input', checkCompletion);
             cellDiv.appendChild(input);
             const number = numbering[`${r},${c}`];
             if (number) {
@@ -216,6 +231,33 @@
         const li = document.createElement('li');
         li.textContent = `${num}. ${clueData[num]}`;
         ul.appendChild(li);
+      }
+    }
+
+    function checkCompletion() {
+      const inputs = document.querySelectorAll('td input');
+      let filledCorrectly = true;
+      let flatIndex = 0;
+
+      outerLoop:
+      for (let r = 0; r < crosswordData.grid.length; r++) {
+        for (let c = 0; c < crosswordData.grid[r].length; c++) {
+          const correctChar = crosswordData.grid[r][c];
+          if (correctChar !== null) {
+            const input = inputs[flatIndex];
+            if (!input || input.value.toUpperCase() !== correctChar.toUpperCase()) {
+              filledCorrectly = false;
+              break outerLoop;
+            }
+            flatIndex++;
+          } else {
+            // black square
+          }
+        }
+      }
+
+      if (filledCorrectly) {
+        document.getElementById('celebration').style.display = 'block';
       }
     }
 
