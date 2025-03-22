@@ -8,24 +8,29 @@
     body {
       font-family: Arial, sans-serif;
       padding: 20px;
-      background: #f4f4f4;
+      background: #f0f8ff;
+      display: flex;
+      flex-direction: row;
+      gap: 40px;
     }
     table {
       border-collapse: collapse;
-      margin: 20px 0;
+      margin: 0;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
     }
     td {
       width: 30px;
       height: 30px;
-      border: 1px solid #333;
+      border: 1px solid #999;
       text-align: center;
       vertical-align: middle;
       font-size: 16px;
       background: white;
       text-transform: uppercase;
+      position: relative;
     }
     td.black {
-      background: #333;
+      background: #222;
     }
     td input {
       width: 100%;
@@ -34,25 +39,43 @@
       text-align: center;
       font-size: 16px;
       background: transparent;
+      color: #333;
+    }
+    td div {
+      width: 100%;
+      height: 100%;
+      position: relative;
+    }
+    td div div {
+      position: absolute;
+      top: 0;
+      left: 2px;
+      font-size: 8px;
+      color: darkblue;
     }
     .clues {
-      margin-top: 20px;
+      max-width: 400px;
     }
     .clues h3 {
-      margin-bottom: 5px;
+      margin: 10px 0 5px;
+      color: #004;
+      border-bottom: 1px solid #ccc;
     }
     .clues ul {
       list-style: none;
-      padding: 0;
+      padding-left: 0;
     }
     .clues li {
-      margin-bottom: 4px;
+      margin-bottom: 6px;
+      font-size: 14px;
     }
   </style>
 </head>
 <body>
-  <h1>NYT-Style Crossword</h1>
-  <div id="puzzle"></div>
+  <div>
+    <h1>NYT-Style Crossword</h1>
+    <div id="puzzle"></div>
+  </div>
   <div class="clues">
     <h3>Across</h3>
     <ul id="across-clues"></ul>
@@ -60,7 +83,6 @@
     <ul id="down-clues"></ul>
   </div>
   <script>
-    // Injecting crosswordData directly here
     const crosswordData = {
       grid: [
         [null, null, "S", null, null, null, "L", null, null, null, null, null, null, "R", null, null, null, null, null],
@@ -144,21 +166,47 @@
 
     function renderGrid(grid) {
       const table = document.createElement('table');
-      grid.forEach(row => {
+      const numbering = {};
+      let clueNumber = 1;
+
+      const rows = grid.length;
+      const cols = grid[0].length;
+
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          if (grid[r][c] !== null) {
+            const isStartOfAcross = (c === 0 || grid[r][c - 1] === null) && (c + 1 < cols && grid[r][c + 1] !== null);
+            const isStartOfDown = (r === 0 || grid[r - 1][c] === null) && (r + 1 < rows && grid[r + 1][c] !== null);
+            if (isStartOfAcross || isStartOfDown) {
+              numbering[`${r},${c}`] = clueNumber++;
+            }
+          }
+        }
+      }
+
+      for (let r = 0; r < rows; r++) {
         const tr = document.createElement('tr');
-        row.forEach(cell => {
+        for (let c = 0; c < cols; c++) {
           const td = document.createElement('td');
-          if (cell === null) {
+          if (grid[r][c] === null) {
             td.className = 'black';
           } else {
+            const cellDiv = document.createElement('div');
             const input = document.createElement('input');
             input.maxLength = 1;
-            td.appendChild(input);
+            cellDiv.appendChild(input);
+            const number = numbering[`${r},${c}`];
+            if (number) {
+              const numberEl = document.createElement('div');
+              numberEl.textContent = number;
+              cellDiv.appendChild(numberEl);
+            }
+            td.appendChild(cellDiv);
           }
           tr.appendChild(td);
-        });
+        }
         table.appendChild(tr);
-      });
+      }
       return table;
     }
 
