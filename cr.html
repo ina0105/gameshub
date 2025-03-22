@@ -463,7 +463,7 @@
             
             // Add cell numbers
             for (const pos in crosswordData.numberedCells) {
-              const [col, row] = pos.split(',').map(Number);
+              const [row, col] = pos.split(',').map(Number);
               if (col === j && row === i) {
                 const number = document.createElement('div');
                 number.className = 'cell-number';
