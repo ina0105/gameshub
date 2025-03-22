@@ -60,45 +60,6 @@
     <ul id="down-clues"></ul>
   </div>
   <script>
-    const crosswordData = { /* INSERTED JS DATA */ };
-
-    function renderGrid(grid) {
-      const table = document.createElement('table');
-      grid.forEach(row => {
-        const tr = document.createElement('tr');
-        row.forEach(cell => {
-          const td = document.createElement('td');
-          if (cell === null) {
-            td.className = 'black';
-          } else {
-            const input = document.createElement('input');
-            input.maxLength = 1;
-            td.appendChild(input);
-          }
-          tr.appendChild(td);
-        });
-        table.appendChild(tr);
-      });
-      return table;
-    }
-
-    function renderClues(clueData, containerId) {
-      const ul = document.getElementById(containerId);
-      for (let num in clueData) {
-        const li = document.createElement('li');
-        li.textContent = `${num}. ${clueData[num]}`;
-        ul.appendChild(li);
-      }
-    }
-
-    document.addEventListener("DOMContentLoaded", () => {
-      const puzzleContainer = document.getElementById("puzzle");
-      puzzleContainer.appendChild(renderGrid(crosswordData.grid));
-      renderClues(crosswordData.clues.across, 'across-clues');
-      renderClues(crosswordData.clues.down, 'down-clues');
-    });
-  </script>
-  <script>
     // Injecting crosswordData directly here
     const crosswordData = {
       grid: [
@@ -180,6 +141,42 @@
         }
       }
     };
+
+    function renderGrid(grid) {
+      const table = document.createElement('table');
+      grid.forEach(row => {
+        const tr = document.createElement('tr');
+        row.forEach(cell => {
+          const td = document.createElement('td');
+          if (cell === null) {
+            td.className = 'black';
+          } else {
+            const input = document.createElement('input');
+            input.maxLength = 1;
+            td.appendChild(input);
+          }
+          tr.appendChild(td);
+        });
+        table.appendChild(tr);
+      });
+      return table;
+    }
+
+    function renderClues(clueData, containerId) {
+      const ul = document.getElementById(containerId);
+      for (let num in clueData) {
+        const li = document.createElement('li');
+        li.textContent = `${num}. ${clueData[num]}`;
+        ul.appendChild(li);
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const puzzleContainer = document.getElementById("puzzle");
+      puzzleContainer.appendChild(renderGrid(crosswordData.grid));
+      renderClues(crosswordData.clues.across, 'across-clues');
+      renderClues(crosswordData.clues.down, 'down-clues');
+    });
   </script>
 </body>
 </html>
